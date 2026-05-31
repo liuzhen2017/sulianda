@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.warehouse.mapper.BusiProductMapper">
+    
+    <resultMap type="BusiProduct" id="BusiProductResult">
+        <result property="id"    column="id"    />
+        <result property="custId"    column="cust_id"    />
+        <result property="nums"    column="nums"    />
+        <result property="name"    column="name"    />
+        <result property="imgUrl"    column="img_url"    />
+        <result property="createdTime"    column="created_time"    />
+        <result property="createdBy"    column="created_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="enName"    column="en_name"    />
+        <result property="sku"    column="sku"    />
+        <result property="unitCode"    column="unit_code"    />
+        <result property="price"    column="price"    />
+        <result property="invoiceCurrencyCode"    column="invoice_currency_code"    />
+    </resultMap>
+
+    <sql id="selectBusiProductVo">
+        select id, cust_id, nums, name, img_url, created_time, created_by, update_time, update_by, dept_id, en_name, sku, unit_code, price, invoice_currency_code from busi_product
+    </sql>
+
+    <select id="selectBusiProductList" parameterType="BusiProduct" resultMap="BusiProductResult">
+        <include refid="selectBusiProductVo"/>
+        <where>  
+            <if test="nums != null "> and nums = #{nums}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="imgUrl != null  and imgUrl != ''"> and img_url = #{imgUrl}</if>
+            <if test="enName != null  and enName != ''"> and en_name like concat('%', #{enName}, '%')</if>
+            <if test="sku != null  and sku != ''"> and sku = #{sku}</if>
+            <if test="unitCode != null  and unitCode != ''"> and unit_code = #{unitCode}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="invoiceCurrencyCode != null  and invoiceCurrencyCode != ''"> and invoice_currency_code = #{invoiceCurrencyCode}</if>
+            <if test="deptId != null "> AND dept_id = #{deptId}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        order by created_time desc
+    </select>
+    
+    <select id="selectBusiProductById" parameterType="Long" resultMap="BusiProductResult">
+        <include refid="selectBusiProductVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBusiProduct" parameterType="BusiProduct" useGeneratedKeys="true" keyProperty="id">
+        insert into busi_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="custId != null">cust_id,</if>
+            <if test="nums != null">nums,</if>
+            <if test="name != null">name,</if>
+            <if test="imgUrl != null">img_url,</if>
+            <if test="createdTime != null">created_time,</if>
+            <if test="createdBy != null">created_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="enName != null">en_name,</if>
+            <if test="sku != null">sku,</if>
+            <if test="unitCode != null">unit_code,</if>
+            <if test="price != null">price,</if>
+            <if test="invoiceCurrencyCode != null">invoice_currency_code,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="custId != null">#{custId},</if>
+            <if test="nums != null">#{nums},</if>
+            <if test="name != null">#{name},</if>
+            <if test="imgUrl != null">#{imgUrl},</if>
+            <if test="createdTime != null">#{createdTime},</if>
+            <if test="createdBy != null">#{createdBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="enName != null">#{enName},</if>
+            <if test="sku != null">#{sku},</if>
+            <if test="unitCode != null">#{unitCode},</if>
+            <if test="price != null">#{price},</if>
+            <if test="invoiceCurrencyCode != null">#{invoiceCurrencyCode},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBusiProduct" parameterType="BusiProduct">
+        update busi_product
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="custId != null">cust_id = #{custId},</if>
+            <if test="nums != null">nums = #{nums},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="imgUrl != null">img_url = #{imgUrl},</if>
+            <if test="createdTime != null">created_time = #{createdTime},</if>
+            <if test="createdBy != null">created_by = #{createdBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="enName != null">en_name = #{enName},</if>
+            <if test="sku != null">sku = #{sku},</if>
+            <if test="unitCode != null">unit_code = #{unitCode},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="invoiceCurrencyCode != null">invoice_currency_code = #{invoiceCurrencyCode},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBusiProductById" parameterType="Long">
+        delete from busi_product where id = #{id}
+    </delete>
+
+    <delete id="deleteBusiProductByIds" parameterType="String">
+        delete from busi_product where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

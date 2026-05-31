@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.warehouse.mapper.BusiOrderEventMapper">
+
+    <resultMap type="BusiOrderEvent" id="BusiOrderEventResult">
+        <result property="id" column="id" />
+        <result property="orderId" column="order_id" />
+        <result property="orderNo" column="order_no" />
+        <result property="eventType" column="event_type" />
+        <result property="beforeStatus" column="before_status" />
+        <result property="afterStatus" column="after_status" />
+        <result property="title" column="title" />
+        <result property="detail" column="detail" />
+        <result property="createdDate" column="created_date" />
+        <result property="updatedDate" column="updated_date" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="deptId" column="dept_id" />
+    </resultMap>
+
+    <sql id="selectBusiOrderEventVo">
+        select id, order_id, order_no, event_type, before_status, after_status, title, detail, created_date, updated_date, created_by, updated_by, dept_id from busi_order_event
+    </sql>
+
+    <select id="selectBusiOrderEventList" parameterType="BusiOrderEvent" resultMap="BusiOrderEventResult">
+        <include refid="selectBusiOrderEventVo"/>
+        <where>
+            <if test="orderId != null"> and order_id = #{orderId}</if>
+            <if test="orderNo != null and orderNo != ''"> and order_no = #{orderNo}</if>
+            <if test="eventType != null and eventType != ''"> and event_type = #{eventType}</if>
+        </where>
+        order by created_date desc, id desc
+    </select>
+
+    <insert id="insertBusiOrderEvent" parameterType="BusiOrderEvent" useGeneratedKeys="true" keyProperty="id">
+        insert into busi_order_event
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="orderNo != null">order_no,</if>
+            <if test="eventType != null">event_type,</if>
+            <if test="beforeStatus != null">before_status,</if>
+            <if test="afterStatus != null">after_status,</if>
+            <if test="title != null">title,</if>
+            <if test="detail != null">detail,</if>
+            <if test="createdDate != null">created_date,</if>
+            <if test="updatedDate != null">updated_date,</if>
+            <if test="createdBy != null">created_by,</if>
+            <if test="updatedBy != null">updated_by,</if>
+            <if test="deptId != null">dept_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="orderNo != null">#{orderNo},</if>
+            <if test="eventType != null">#{eventType},</if>
+            <if test="beforeStatus != null">#{beforeStatus},</if>
+            <if test="afterStatus != null">#{afterStatus},</if>
+            <if test="title != null">#{title},</if>
+            <if test="detail != null">#{detail},</if>
+            <if test="createdDate != null">#{createdDate},</if>
+            <if test="updatedDate != null">#{updatedDate},</if>
+            <if test="createdBy != null">#{createdBy},</if>
+            <if test="updatedBy != null">#{updatedBy},</if>
+            <if test="deptId != null">#{deptId},</if>
+        </trim>
+    </insert>
+</mapper>

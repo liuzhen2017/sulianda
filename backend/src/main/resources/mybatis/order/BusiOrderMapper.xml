@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.warehouse.mapper.BusiOrderMapper">
+
+    <!--查询报表 BEGIN-->
+    <select id="queryReport" resultType="com.ruoyi.project.warehouse.output.AdminReportOutput" >
+        <!-- 查询总利润，总订单数量，总运费，总打包费 -->
+        SELECT COALESCE(SUM(profit_money), 0) totalProfitMoney,COUNT(0) totalOderNumber,
+               COALESCE(SUM(express_money), 0) totalExpressMoney,COALESCE(SUM(package_money), 0) totalPackageMoney
+        FROM busi_order
+        WHERE STATUS = 5
+    </select>
+
+
+
+    <select id="queryReportHistory" resultType="com.ruoyi.project.warehouse.output.AdminReportOutput" parameterType="com.ruoyi.project.warehouse.input.QueryChartInput">
+        SELECT
+               SUM(profit_money) totalProfitMoney,COUNT(0) totalOderNumber,
+               SUM(express_money) totalExpressMoney,SUM(package_money)  totalPackageMoney,
+               DATE_FORMAT(created_date, #{dateFrom}) dateStr
+        FROM busi_order
+        WHERE STATUS = 5
+        <if test="type == '2'">
+            and DATE_FORMAT(created_date, '%Y') >= #{date}
+        </if>
+        <if test="type == '3'">
+            and DATE_FORMAT(created_date, '%Y-%m') >= #{date}
+        </if>
+        GROUP BY DATE_FORMAT(created_date, #{dateFrom})
+        ORDER BY DATE_FORMAT(created_date, #{dateFrom})
+    </select>
+    <!--查询报表 END-->
+
+    <resultMap type="BusiOrder" id="BusiOrderResult">
+        <result property="id"    column="id"    />
+        <result property="custId"    column="cust_id"    />
+        <result property="orderNo"    column="order_no"    />
+        <result property="thirdPartyNo"    column="third_party_no"    />
+        <result property="serverType"    column="server_type"    />
+        <result property="addressLibrary"    column="address_library"    />
+        <result property="addressOne"    column="address_one"    />
+        <result property="addressTwo"    column="address_two"    />
+        <result property="addressThree"    column="address_three"    />
+        <result property="email"    column="email"    />
+        <result property="store"    column="store"    />
+        <result property="referenceOne"    column="reference_one"    />
+        <result property="referenceTwo"    column="reference_two"    />
+        <result property="eori"    column="eori"    />
+        <result property="attribute"    column="attribute"    />
+        <result property="payInsurance"    column="pay_insurance"    />
+        <result property="insured"    column="insured"    />
+        <result property="deliveryNo"    column="delivery_no"    />
+        <result property="type"    column="type"    />
+        <result property="purchaseNo"    column="purchase_no"    />
+        <result property="purchaseSource"    column="purchase_source"    />
+        <result property="purchaseUrl"    column="purchase_url"    />
+        <result property="deliveryRemark"    column="delivery_remark"    />
+        <result property="status"    column="status"    />
+        <result property="productId"    column="product_id"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="productNums"    column="product_nums"    />
+        <result property="faceUrl"    column="face_url"    />
+        <result property="expressId"    column="express_id"    />
+        <result property="expressMoney"    column="express_money"    />
+        <result property="totalMoney"    column="total_money"    />
+        <result property="expressCompany"    column="express_company"    />
+        <result property="expressChannel"    column="express_channel"    />
+        <result property="packageMoney"    column="package_money"    />
+        <result property="profitMoney"    column="profit_money"    />
+        <result property="taxes"    column="taxes"    />
+        <result property="arrivedMoney"    column="arrived_money"    />
+        <result property="countryName"    column="country_name"    />
+        <result property="countryEname"    column="country_ename"    />
+        <result property="custSendNums"    column="cust_send_nums"    />
+        <result property="rejectRemark"    column="reject_remark"    />
+        <result property="checkStatus"    column="check_status"    />
+        <result property="checkSummary"    column="check_summary"    />
+        <result property="issueType"    column="issue_type"    />
+        <result property="issueStatus"    column="issue_status"    />
+        <result property="releaseStatus"    column="release_status"    />
+        <result property="warehouseSendNums"    column="warehouse_send_nums"    />
+        <result property="goodsLength"    column="goods_length"    />
+        <result property="goodsWidth"    column="goods_width"    />
+        <result property="goodsHeight"    column="goods_height"    />
+        <result property="goodsWeight"    column="goods_weight"    />
+        <result property="remark"    column="remark"    />
+        <result property="shipperName"    column="shipper_name"    />
+        <result property="shipperCountryCode"    column="shipper_country_code"    />
+        <result property="shipperStreet"    column="shipper_street"    />
+        <result property="shipperTelephone"    column="shipper_telephone"    />
+        <result property="shipperCity"    column="shipper_city"    />
+        <result property="addressCode"    column="address_code"    />
+        <result property="consigneeName"    column="consignee_name"    />
+        <result property="consigneeCompany"    column="consignee_company"    />
+        <result property="consigneeStreet"    column="consignee_street"    />
+        <result property="consigneeCity"    column="consignee_city"    />
+        <result property="consigneeProvince"    column="consignee_province"    />
+        <result property="consigneeHousenum"    column="consignee_houseNum"    />
+        <result property="consigneeMail"    column="consignee_mail"    />
+        <result property="consigneeCountryCode"    column="consignee_country_code"    />
+        <result property="consigneeTelephone"    column="consignee_telephone"    />
+        <result property="invoiceCnName"    column="invoice_cn_name"    />
+        <result property="invoiceEnName"    column="invoice_en_name"    />
+        <result property="shippingMethod"    column="shipping_method"    />
+        <result property="unitCode"    column="unit_code"    />
+        <result property="invoiceUnitCharge"    column="invoice_unit_charge"    />
+        <result property="invoiceNote"    column="invoice_note"    />
+        <result property="invoiceQuantity"    column="invoice_quantity"    />
+        <result property="charge"    column="charge"    />
+        <result property="magnetism"    column="magnetism"    />
+        <result property="liquid"    column="liquid"    />
+        <result property="powder"    column="powder"    />
+        <result property="danger"    column="danger"    />
+        <result property="invoiceType"    column="invoice_type"    />
+        <result property="evaluate"    column="evaluate"    />
+        <result property="iossNo"    column="ioss_no"    />
+        <result property="taxesType"    column="taxes_type"    />
+        <result property="deliveryTerms"    column="delivery_terms"    />
+        <result property="vatNo"    column="vat_no"    />
+        <result property="invoiceCurrencycode"    column="invoice_currencycode"    />
+        <result property="poNumber"    column="po_number"    />
+        <result property="createdDate"    column="created_date"    />
+        <result property="updatedDate"    column="updated_date"    />
+        <result property="createdBy"    column="created_by"    />
+        <result property="updatedBy"    column="updated_by"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <sql id="selectBusiOrderVo">
+        select id, cust_id, order_no, third_party_no, server_type, address_library, address_one, address_two, address_three, email, store, reference_one, reference_two, eori, attribute,pay_insurance, insured,
+        delivery_no, type, purchase_no, purchase_source, purchase_url, delivery_remark, status, product_id, customer_id, product_nums, face_url, express_id, express_money, total_money, express_company, arrived_money, express_channel, package_money, profit_money, taxes, country_name, country_ename, cust_send_nums, reject_remark, check_status, check_summary, issue_type, issue_status, release_status, warehouse_send_nums, goods_length, goods_width, goods_height, goods_weight, remark, shipper_name, shipper_country_code, shipper_street, shipper_telephone, shipper_city, address_code, consignee_name, consignee_company, consignee_street, consignee_city, consignee_province, consignee_houseNum, consignee_mail, consignee_country_code, consignee_telephone, invoice_cn_name, invoice_en_name, shipping_method, unit_code, invoice_unit_charge, invoice_note, invoice_quantity, charge, magnetism, liquid, powder, danger, invoice_type, evaluate, ioss_no, taxes_type, delivery_terms, vat_no, invoice_currencycode, po_number, created_date, updated_date, created_by, updated_by, dept_id from busi_order
+    </sql>
+
+    <select id="selectBusiOrderList" parameterType="BusiOrder" resultMap="BusiOrderResult">
+        <include refid="selectBusiOrderVo"/>
+        <where>  
+            <if test="custId != null "> and cust_id = #{custId}</if>
+            <if test="orderNo != null  and orderNo != ''"> and order_no = #{orderNo}</if>
+            <if test="thirdPartyNo != null  and thirdPartyNo != ''"> and third_party_no = #{thirdPartyNo}</if>
+            <if test="serverType != null  and serverType != ''"> and server_type = #{serverType}</if>
+            <if test="addressLibrary != null  and addressLibrary != ''"> and address_library = #{addressLibrary}</if>
+            <if test="addressOne != null  and addressOne != ''"> and address_one = #{addressOne}</if>
+            <if test="addressTwo != null  and addressTwo != ''"> and address_two = #{addressTwo}</if>
+            <if test="addressThree != null  and addressThree != ''"> and address_three = #{addressThree}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="store != null  and store != ''"> and store = #{store}</if>
+            <if test="referenceOne != null  and referenceOne != ''"> and reference_one = #{referenceOne}</if>
+            <if test="referenceTwo != null  and referenceTwo != ''"> and reference_two = #{referenceTwo}</if>
+            <if test="eori != null  and eori != ''"> and eori = #{eori}</if>
+            <if test="attribute != null  and attribute != ''"> and attribute = #{attribute}</if>
+            <if test="payInsurance != null  and payInsurance != ''"> and pay_insurance = #{payInsurance}</if>
+            <if test="insured != null "> and insured = #{insured}</if>
+            <if test="deliveryNo != null  and deliveryNo != ''"> and delivery_no = #{deliveryNo}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="purchaseNo != null  and purchaseNo != ''"> and purchase_no = #{purchaseNo}</if>
+            <if test="purchaseSource != null  and purchaseSource != ''"> and purchase_source = #{purchaseSource}</if>
+            <if test="purchaseUrl != null  and purchaseUrl != ''"> and purchase_url = #{purchaseUrl}</if>
+            <if test="deliveryRemark != null  and deliveryRemark != ''"> and delivery_remark = #{deliveryRemark}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="productNums != null "> and product_nums = #{productNums}</if>
+            <if test="faceUrl != null  and faceUrl != ''"> and face_url = #{faceUrl}</if>
+            <if test="expressId != null "> and express_id = #{expressId}</if>
+            <if test="expressMoney != null "> and express_money = #{expressMoney}</if>
+            <if test="totalMoney != null "> and total_money = #{totalMoney}</if>
+            <if test="expressCompany != null  and expressCompany != ''"> and express_company = #{expressCompany}</if>
+            <if test="expressChannel != null  and expressChannel != ''"> and express_channel = #{expressChannel}</if>
+            <if test="packageMoney != null "> and package_money = #{packageMoney}</if>
+            <if test="profitMoney != null "> and profit_money = #{profitMoney}</if>
+            <if test="taxes != null "> and taxes = #{taxes}</if>
+            <if test="arrivedMoney != null "> and arrived_money = #{arrivedMoney}</if>
+            <if test="countryName != null  and countryName != ''"> and country_name like concat('%', #{countryName}, '%')</if>
+            <if test="countryEname != null  and countryEname != ''"> and country_ename like concat('%', #{countryEname}, '%')</if>
+            <if test="custSendNums != null "> and cust_send_nums = #{custSendNums}</if>
+            <if test="rejectRemark != null  and rejectRemark != ''"> and reject_remark = #{rejectRemark}</if>
+            <if test="checkStatus != null  and checkStatus != ''"> and check_status = #{checkStatus}</if>
+            <if test="issueType != null  and issueType != ''"> and issue_type = #{issueType}</if>
+            <if test="issueStatus != null  and issueStatus != ''"> and issue_status = #{issueStatus}</if>
+            <if test="releaseStatus != null  and releaseStatus != ''"> and release_status = #{releaseStatus}</if>
+            <if test="warehouseSendNums != null "> and warehouse_send_nums = #{warehouseSendNums}</if>
+            <if test="goodsLength != null "> and goods_length = #{goodsLength}</if>
+            <if test="goodsWidth != null "> and goods_width = #{goodsWidth}</if>
+            <if test="goodsHeight != null "> and goods_height = #{goodsHeight}</if>
+            <if test="goodsWeight != null "> and goods_weight = #{goodsWeight}</if>
+            <if test="shipperName != null  and shipperName != ''"> and shipper_name like concat('%', #{shipperName}, '%')</if>
+            <if test="shipperCountryCode != null  and shipperCountryCode != ''"> and shipper_country_code = #{shipperCountryCode}</if>
+            <if test="shipperStreet != null  and shipperStreet != ''"> and shipper_street = #{shipperStreet}</if>
+            <if test="shipperTelephone != null  and shipperTelephone != ''"> and shipper_telephone = #{shipperTelephone}</if>
+            <if test="shipperCity != null  and shipperCity != ''"> and shipper_city = #{shipperCity}</if>
+            <if test="addressCode != null  and addressCode != ''"> and address_code = #{addressCode}</if>
+            <if test="consigneeName != null  and consigneeName != ''"> and consignee_name like concat('%', #{consigneeName}, '%')</if>
+            <if test="consigneeCompany != null  and consigneeCompany != ''"> and consignee_company = #{consigneeCompany}</if>
+            <if test="consigneeStreet != null  and consigneeStreet != ''"> and consignee_street = #{consigneeStreet}</if>
+            <if test="consigneeCity != null  and consigneeCity != ''"> and consignee_city = #{consigneeCity}</if>
+            <if test="consigneeProvince != null  and consigneeProvince != ''"> and consignee_province = #{consigneeProvince}</if>
+            <if test="consigneeHousenum != null  and consigneeHousenum != ''"> and consignee_houseNum = #{consigneeHousenum}</if>
+            <if test="consigneeMail != null  and consigneeMail != ''"> and consignee_mail = #{consigneeMail}</if>
+            <if test="consigneeCountryCode != null  and consigneeCountryCode != ''"> and consignee_country_code = #{consigneeCountryCode}</if>
+            <if test="consigneeTelephone != null  and consigneeTelephone != ''"> and consignee_telephone = #{consigneeTelephone}</if>
+            <if test="invoiceCnName != null  and invoiceCnName != ''"> and invoice_cn_name like concat('%', #{invoiceCnName}, '%')</if>
+            <if test="invoiceEnName != null  and invoiceEnName != ''"> and invoice_en_name like concat('%', #{invoiceEnName}, '%')</if>
+            <if test="shippingMethod != null  and shippingMethod != ''"> and shipping_method = #{shippingMethod}</if>
+            <if test="unitCode != null  and unitCode != ''"> and unit_code = #{unitCode}</if>
+            <if test="invoiceUnitCharge != null  and invoiceUnitCharge != ''"> and invoice_unit_charge = #{invoiceUnitCharge}</if>
+            <if test="invoiceNote != null  and invoiceNote != ''"> and invoice_note = #{invoiceNote}</if>
+            <if test="invoiceQuantity != null  and invoiceQuantity != ''"> and invoice_quantity = #{invoiceQuantity}</if>
+            <if test="charge != null  and charge != ''"> and charge = #{charge}</if>
+            <if test="magnetism != null  and magnetism != ''"> and magnetism = #{magnetism}</if>
+            <if test="liquid != null  and liquid != ''"> and liquid = #{liquid}</if>
+            <if test="powder != null  and powder != ''"> and powder = #{powder}</if>
+            <if test="danger != null  and danger != ''"> and danger = #{danger}</if>
+            <if test="invoiceType != null  and invoiceType != ''"> and invoice_type = #{invoiceType}</if>
+            <if test="evaluate != null  and evaluate != ''"> and evaluate = #{evaluate}</if>
+            <if test="iossNo != null  and iossNo != ''"> and ioss_no = #{iossNo}</if>
+            <if test="taxesType != null  and taxesType != ''"> and taxes_type = #{taxesType}</if>
+            <if test="deliveryTerms != null  and deliveryTerms != ''"> and delivery_terms = #{deliveryTerms}</if>
+            <if test="vatNo != null  and vatNo != ''"> and vat_no = #{vatNo}</if>
+            <if test="invoiceCurrencycode != null  and invoiceCurrencycode != ''"> and invoice_currencycode = #{invoiceCurrencycode}</if>
+            <if test="poNumber != null  and poNumber != ''"> and po_number = #{poNumber}</if>
+            <if test="createdDate != null "> and created_date = #{createdDate}</if>
+            <if test="updatedDate != null "> and updated_date = #{updatedDate}</if>
+            <if test="createdBy != null  and createdBy != ''"> AND created_by like concat('%', #{createdBy}, '%')</if>
+            <if test="updatedBy != null  and updatedBy != ''"> and updated_by = #{updatedBy}</if>
+            <if test="deptId != null "> AND dept_id = #{deptId}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        ORDER BY updated_date DESC
+    </select>
+    
+    <select id="selectBusiOrderById" parameterType="Long" resultMap="BusiOrderResult">
+        <include refid="selectBusiOrderVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertBusiOrder" parameterType="BusiOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into busi_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="custId != null">cust_id,</if>
+            <if test="orderNo != null">order_no,</if>
+            <if test="thirdPartyNo != null">third_party_no,</if>
+            <if test="serverType != null">server_type,</if>
+            <if test="addressLibrary != null">address_library,</if>
+            <if test="addressOne != null">address_one,</if>
+            <if test="addressTwo != null">address_two,</if>
+            <if test="addressThree != null">address_three,</if>
+            <if test="email != null">email,</if>
+            <if test="store != null">store,</if>
+            <if test="referenceOne != null">reference_one,</if>
+            <if test="referenceTwo != null">reference_two,</if>
+            <if test="eori != null">eori,</if>
+            <if test="attribute != null">attribute,</if>
+            <if test="payInsurance != null">pay_insurance,</if>
+            <if test="insured != null">insured,</if>
+            <if test="deliveryNo != null">delivery_no,</if>
+            <if test="type != null">type,</if>
+            <if test="purchaseNo != null">purchase_no,</if>
+            <if test="purchaseSource != null">purchase_source,</if>
+            <if test="purchaseUrl != null">purchase_url,</if>
+            <if test="deliveryRemark != null">delivery_remark,</if>
+            <if test="status != null">status,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="productNums != null">product_nums,</if>
+            <if test="faceUrl != null">face_url,</if>
+            <if test="expressId != null">express_id,</if>
+            <if test="expressMoney != null">express_money,</if>
+            <if test="totalMoney != null">total_money,</if>
+            <if test="expressCompany != null">express_company,</if>
+            <if test="expressChannel != null">express_channel,</if>
+            <if test="packageMoney != null">package_money,</if>
+            <if test="profitMoney != null">profit_money,</if>
+            <if test="taxes != null">taxes,</if>
+            <if test="arrivedMoney != null">arrived_money,</if>
+            <if test="countryName != null">country_name,</if>
+            <if test="countryEname != null">country_ename,</if>
+            <if test="custSendNums != null">cust_send_nums,</if>
+            <if test="rejectRemark != null">reject_remark,</if>
+            <if test="checkStatus != null">check_status,</if>
+            <if test="checkSummary != null">check_summary,</if>
+            <if test="issueType != null">issue_type,</if>
+            <if test="issueStatus != null">issue_status,</if>
+            <if test="releaseStatus != null">release_status,</if>
+            <if test="warehouseSendNums != null">warehouse_send_nums,</if>
+            <if test="goodsLength != null">goods_length,</if>
+            <if test="goodsWidth != null">goods_width,</if>
+            <if test="goodsHeight != null">goods_height,</if>
+            <if test="goodsWeight != null">goods_weight,</if>
+            <if test="remark != null">remark,</if>
+            <if test="shipperName != null">shipper_name,</if>
+            <if test="shipperCountryCode != null">shipper_country_code,</if>
+            <if test="shipperStreet != null">shipper_street,</if>
+            <if test="shipperTelephone != null">shipper_telephone,</if>
+            <if test="shipperCity != null">shipper_city,</if>
+            <if test="addressCode != null">address_code,</if>
+            <if test="consigneeName != null">consignee_name,</if>
+            <if test="consigneeCompany != null">consignee_company,</if>
+            <if test="consigneeStreet != null">consignee_street,</if>
+            <if test="consigneeCity != null">consignee_city,</if>
+            <if test="consigneeProvince != null">consignee_province,</if>
+            <if test="consigneeHousenum != null">consignee_houseNum,</if>
+            <if test="consigneeMail != null">consignee_mail,</if>
+            <if test="consigneeCountryCode != null">consignee_country_code,</if>
+            <if test="consigneeTelephone != null">consignee_telephone,</if>
+            <if test="invoiceCnName != null">invoice_cn_name,</if>
+            <if test="invoiceEnName != null">invoice_en_name,</if>
+            <if test="shippingMethod != null">shipping_method,</if>
+            <if test="unitCode != null">unit_code,</if>
+            <if test="invoiceUnitCharge != null">invoice_unit_charge,</if>
+            <if test="invoiceNote != null">invoice_note,</if>
+            <if test="invoiceQuantity != null">invoice_quantity,</if>
+            <if test="charge != null">charge,</if>
+            <if test="magnetism != null">magnetism,</if>
+            <if test="liquid != null">liquid,</if>
+            <if test="powder != null">powder,</if>
+            <if test="danger != null">danger,</if>
+            <if test="invoiceType != null">invoice_type,</if>
+            <if test="evaluate != null">evaluate,</if>
+            <if test="iossNo != null">ioss_no,</if>
+            <if test="taxesType != null">taxes_type,</if>
+            <if test="deliveryTerms != null">delivery_terms,</if>
+            <if test="vatNo != null">vat_no,</if>
+            <if test="invoiceCurrencycode != null">invoice_currencycode,</if>
+            <if test="poNumber != null">po_number,</if>
+            <if test="createdDate != null">created_date,</if>
+            <if test="updatedDate != null">updated_date,</if>
+            <if test="createdBy != null">created_by,</if>
+            <if test="updatedBy != null">updated_by,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="custId != null">#{custId},</if>
+            <if test="orderNo != null">#{orderNo},</if>
+            <if test="thirdPartyNo != null">#{thirdPartyNo},</if>
+            <if test="serverType != null">#{serverType},</if>
+            <if test="addressLibrary != null">#{addressLibrary},</if>
+            <if test="addressOne != null">#{addressOne},</if>
+            <if test="addressTwo != null">#{addressTwo},</if>
+            <if test="addressThree != null">#{addressThree},</if>
+            <if test="email != null">#{email},</if>
+            <if test="store != null">#{store},</if>
+            <if test="referenceOne != null">#{referenceOne},</if>
+            <if test="referenceTwo != null">#{referenceTwo},</if>
+            <if test="eori != null">#{eori},</if>
+            <if test="attribute != null">#{attribute},</if>
+            <if test="payInsurance != null">#{payInsurance},</if>
+            <if test="insured != null">#{insured},</if>
+            <if test="deliveryNo != null">#{deliveryNo},</if>
+            <if test="type != null">#{type},</if>
+            <if test="purchaseNo != null">#{purchaseNo},</if>
+            <if test="purchaseSource != null">#{purchaseSource},</if>
+            <if test="purchaseUrl != null">#{purchaseUrl},</if>
+            <if test="deliveryRemark != null">#{deliveryRemark},</if>
+            <if test="status != null">#{status},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="productNums != null">#{productNums},</if>
+            <if test="faceUrl != null">#{faceUrl},</if>
+            <if test="expressId != null">#{expressId},</if>
+            <if test="expressMoney != null">#{expressMoney},</if>
+            <if test="totalMoney != null">#{totalMoney},</if>
+            <if test="expressCompany != null">#{expressCompany},</if>
+            <if test="expressChannel != null">#{expressChannel},</if>
+            <if test="packageMoney != null">#{packageMoney},</if>
+            <if test="profitMoney != null">#{profitMoney},</if>
+            <if test="taxes != null">#{taxes},</if>
+            <if test="arrivedMoney != null">#{arrivedMoney},</if>
+            <if test="countryName != null">#{countryName},</if>
+            <if test="countryEname != null">#{countryEname},</if>
+            <if test="custSendNums != null">#{custSendNums},</if>
+            <if test="rejectRemark != null">#{rejectRemark},</if>
+            <if test="checkStatus != null">#{checkStatus},</if>
+            <if test="checkSummary != null">#{checkSummary},</if>
+            <if test="issueType != null">#{issueType},</if>
+            <if test="issueStatus != null">#{issueStatus},</if>
+            <if test="releaseStatus != null">#{releaseStatus},</if>
+            <if test="warehouseSendNums != null">#{warehouseSendNums},</if>
+            <if test="goodsLength != null">#{goodsLength},</if>
+            <if test="goodsWidth != null">#{goodsWidth},</if>
+            <if test="goodsHeight != null">#{goodsHeight},</if>
+            <if test="goodsWeight != null">#{goodsWeight},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="shipperName != null">#{shipperName},</if>
+            <if test="shipperCountryCode != null">#{shipperCountryCode},</if>
+            <if test="shipperStreet != null">#{shipperStreet},</if>
+            <if test="shipperTelephone != null">#{shipperTelephone},</if>
+            <if test="shipperCity != null">#{shipperCity},</if>
+            <if test="addressCode != null">#{addressCode},</if>
+            <if test="consigneeName != null">#{consigneeName},</if>
+            <if test="consigneeCompany != null">#{consigneeCompany},</if>
+            <if test="consigneeStreet != null">#{consigneeStreet},</if>
+            <if test="consigneeCity != null">#{consigneeCity},</if>
+            <if test="consigneeProvince != null">#{consigneeProvince},</if>
+            <if test="consigneeHousenum != null">#{consigneeHousenum},</if>
+            <if test="consigneeMail != null">#{consigneeMail},</if>
+            <if test="consigneeCountryCode != null">#{consigneeCountryCode},</if>
+            <if test="consigneeTelephone != null">#{consigneeTelephone},</if>
+            <if test="invoiceCnName != null">#{invoiceCnName},</if>
+            <if test="invoiceEnName != null">#{invoiceEnName},</if>
+            <if test="shippingMethod != null">#{shippingMethod},</if>
+            <if test="unitCode != null">#{unitCode},</if>
+            <if test="invoiceUnitCharge != null">#{invoiceUnitCharge},</if>
+            <if test="invoiceNote != null">#{invoiceNote},</if>
+            <if test="invoiceQuantity != null">#{invoiceQuantity},</if>
+            <if test="charge != null">#{charge},</if>
+            <if test="magnetism != null">#{magnetism},</if>
+            <if test="liquid != null">#{liquid},</if>
+            <if test="powder != null">#{powder},</if>
+            <if test="danger != null">#{danger},</if>
+            <if test="invoiceType != null">#{invoiceType},</if>
+            <if test="evaluate != null">#{evaluate},</if>
+            <if test="iossNo != null">#{iossNo},</if>
+            <if test="taxesType != null">#{taxesType},</if>
+            <if test="deliveryTerms != null">#{deliveryTerms},</if>
+            <if test="vatNo != null">#{vatNo},</if>
+            <if test="invoiceCurrencycode != null">#{invoiceCurrencycode},</if>
+            <if test="poNumber != null">#{poNumber},</if>
+            <if test="createdDate != null">#{createdDate},</if>
+            <if test="updatedDate != null">#{updatedDate},</if>
+            <if test="createdBy != null">#{createdBy},</if>
+            <if test="updatedBy != null">#{updatedBy},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBusiOrder" parameterType="BusiOrder">
+        update busi_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="custId != null">cust_id = #{custId},</if>
+            <if test="orderNo != null">order_no = #{orderNo},</if>
+            <if test="thirdPartyNo != null">third_party_no = #{thirdPartyNo},</if>
+            <if test="serverType != null">server_type = #{serverType},</if>
+            <if test="addressLibrary != null">address_library = #{addressLibrary},</if>
+            <if test="addressOne != null">address_one = #{addressOne},</if>
+            <if test="addressTwo != null">address_two = #{addressTwo},</if>
+            <if test="addressThree != null">address_three = #{addressThree},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="store != null">store = #{store},</if>
+            <if test="referenceOne != null">reference_one = #{referenceOne},</if>
+            <if test="referenceTwo != null">reference_two = #{referenceTwo},</if>
+            <if test="eori != null">eori = #{eori},</if>
+            <if test="attribute != null">attribute = #{attribute},</if>
+            <if test="payInsurance != null">pay_insurance = #{payInsurance},</if>
+            <if test="insured != null">insured = #{insured},</if>
+            <if test="deliveryNo != null">delivery_no = #{deliveryNo},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="purchaseNo != null">purchase_no = #{purchaseNo},</if>
+            <if test="purchaseSource != null">purchase_source = #{purchaseSource},</if>
+            <if test="purchaseUrl != null">purchase_url = #{purchaseUrl},</if>
+            <if test="deliveryRemark != null">delivery_remark = #{deliveryRemark},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="productNums != null">product_nums = #{productNums},</if>
+            <if test="faceUrl != null">face_url = #{faceUrl},</if>
+            <if test="expressId != null">express_id = #{expressId},</if>
+            <if test="expressMoney != null">express_money = #{expressMoney},</if>
+            <if test="totalMoney != null">total_money = #{totalMoney},</if>
+            <if test="expressCompany != null">express_company = #{expressCompany},</if>
+            <if test="expressChannel != null">express_channel = #{expressChannel},</if>
+            <if test="packageMoney != null">package_money = #{packageMoney},</if>
+            <if test="profitMoney != null">profit_money = #{profitMoney},</if>
+            <if test="taxes != null">taxes = #{taxes},</if>
+            <if test="arrivedMoney != null">arrived_money = #{arrivedMoney},</if>
+            <if test="countryName != null">country_name = #{countryName},</if>
+            <if test="countryEname != null">country_ename = #{countryEname},</if>
+            <if test="custSendNums != null">cust_send_nums = #{custSendNums},</if>
+            <if test="rejectRemark != null">reject_remark = #{rejectRemark},</if>
+            <if test="checkStatus != null">check_status = #{checkStatus},</if>
+            <if test="checkSummary != null">check_summary = #{checkSummary},</if>
+            <if test="issueType != null">issue_type = #{issueType},</if>
+            <if test="issueStatus != null">issue_status = #{issueStatus},</if>
+            <if test="releaseStatus != null">release_status = #{releaseStatus},</if>
+            <if test="warehouseSendNums != null">warehouse_send_nums = #{warehouseSendNums},</if>
+            <if test="goodsLength != null">goods_length = #{goodsLength},</if>
+            <if test="goodsWidth != null">goods_width = #{goodsWidth},</if>
+            <if test="goodsHeight != null">goods_height = #{goodsHeight},</if>
+            <if test="goodsWeight != null">goods_weight = #{goodsWeight},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="shipperName != null">shipper_name = #{shipperName},</if>
+            <if test="shipperCountryCode != null">shipper_country_code = #{shipperCountryCode},</if>
+            <if test="shipperStreet != null">shipper_street = #{shipperStreet},</if>
+            <if test="shipperTelephone != null">shipper_telephone = #{shipperTelephone},</if>
+            <if test="shipperCity != null">shipper_city = #{shipperCity},</if>
+            <if test="addressCode != null">address_code = #{addressCode},</if>
+            <if test="consigneeName != null">consignee_name = #{consigneeName},</if>
+            <if test="consigneeCompany != null">consignee_company = #{consigneeCompany},</if>
+            <if test="consigneeStreet != null">consignee_street = #{consigneeStreet},</if>
+            <if test="consigneeCity != null">consignee_city = #{consigneeCity},</if>
+            <if test="consigneeProvince != null">consignee_province = #{consigneeProvince},</if>
+            <if test="consigneeHousenum != null">consignee_houseNum = #{consigneeHousenum},</if>
+            <if test="consigneeMail != null">consignee_mail = #{consigneeMail},</if>
+            <if test="consigneeCountryCode != null">consignee_country_code = #{consigneeCountryCode},</if>
+            <if test="consigneeTelephone != null">consignee_telephone = #{consigneeTelephone},</if>
+            <if test="invoiceCnName != null">invoice_cn_name = #{invoiceCnName},</if>
+            <if test="invoiceEnName != null">invoice_en_name = #{invoiceEnName},</if>
+            <if test="shippingMethod != null">shipping_method = #{shippingMethod},</if>
+            <if test="unitCode != null">unit_code = #{unitCode},</if>
+            <if test="invoiceUnitCharge != null">invoice_unit_charge = #{invoiceUnitCharge},</if>
+            <if test="invoiceNote != null">invoice_note = #{invoiceNote},</if>
+            <if test="invoiceQuantity != null">invoice_quantity = #{invoiceQuantity},</if>
+            <if test="charge != null">charge = #{charge},</if>
+            <if test="magnetism != null">magnetism = #{magnetism},</if>
+            <if test="liquid != null">liquid = #{liquid},</if>
+            <if test="powder != null">powder = #{powder},</if>
+            <if test="danger != null">danger = #{danger},</if>
+            <if test="invoiceType != null">invoice_type = #{invoiceType},</if>
+            <if test="evaluate != null">evaluate = #{evaluate},</if>
+            <if test="iossNo != null">ioss_no = #{iossNo},</if>
+            <if test="taxesType != null">taxes_type = #{taxesType},</if>
+            <if test="deliveryTerms != null">delivery_terms = #{deliveryTerms},</if>
+            <if test="vatNo != null">vat_no = #{vatNo},</if>
+            <if test="invoiceCurrencycode != null">invoice_currencycode = #{invoiceCurrencycode},</if>
+            <if test="poNumber != null">po_number = #{poNumber},</if>
+            <if test="createdDate != null">created_date = #{createdDate},</if>
+            <if test="updatedDate != null">updated_date = #{updatedDate},</if>
+            <if test="createdBy != null">created_by = #{createdBy},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBusiOrderById" parameterType="Long">
+        delete from busi_order where id = #{id}
+    </delete>
+
+    <delete id="deleteBusiOrderByIds" parameterType="String">
+        delete from busi_order where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

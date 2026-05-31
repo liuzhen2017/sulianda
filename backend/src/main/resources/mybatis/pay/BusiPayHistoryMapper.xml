@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.warehouse.mapper.BusiPayHistoryMapper">
+    
+    <resultMap type="BusiPayHistory" id="BusiPayHistoryResult">
+        <result property="id"    column="id"    />
+        <result property="custId"    column="cust_id"    />
+        <result property="payType"    column="pay_type"    />
+        <result property="balance"    column="balance"    />
+        <result property="payMoney"    column="pay_money"    />
+        <result property="orderNo"    column="order_no"    />
+        <result property="payUrl"    column="pay_url"    />
+        <result property="payStatus"    column="pay_status"    />
+        <result property="approvalDate"    column="approval_date"    />
+        <result property="money"    column="money"    />
+        <result property="remakr"    column="remakr"    />
+        <result property="explainText"    column="explain_text"    />
+        <result property="createdDate"    column="created_date"    />
+        <result property="updatedDate"    column="updated_date"    />
+        <result property="createdBy"    column="created_by"    />
+        <result property="updatedBy"    column="updated_by"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <sql id="selectBusiPayHistoryVo">
+        select id, cust_id, pay_type, balance, pay_money, order_no, pay_url, pay_status, approval_date, money, remakr, explain_text, created_date, updated_date, created_by, updated_by, dept_id from busi_pay_history
+    </sql>
+
+    <select id="selectBusiPayHistoryList" parameterType="BusiPayHistory" resultMap="BusiPayHistoryResult">
+        <include refid="selectBusiPayHistoryVo"/>
+        <where>  
+            <if test="custId != null "> and cust_id = #{custId}</if>
+            <if test="payType != null  and payType != ''"> and pay_type = #{payType}</if>
+            <if test="balance != null "> and balance = #{balance}</if>
+            <if test="payMoney != null "> and pay_money = #{payMoney}</if>
+            <if test="orderNo != null  and orderNo != ''"> and order_no = #{orderNo}</if>
+            <if test="payUrl != null  and payUrl != ''"> and pay_url = #{payUrl}</if>
+            <if test="payStatus != null  and payStatus != ''"> and pay_status = #{payStatus}</if>
+            <if test="approvalDate != null "> and approval_date = #{approvalDate}</if>
+            <if test="money != null "> and money = #{money}</if>
+            <if test="remakr != null  and remakr != ''"> and remakr = #{remakr}</if>
+            <if test="explainText != null  and explainText != ''"> and explain_text = #{explainText}</if>
+            <if test="createdDate != null "> and created_date = #{createdDate}</if>
+            <if test="updatedDate != null "> and updated_date = #{updatedDate}</if>
+            <if test="createdBy != null  and createdBy != ''"> and created_by = #{createdBy}</if>
+            <if test="updatedBy != null  and updatedBy != ''"> and updated_by = #{updatedBy}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        order by updated_date desc
+    </select>
+    
+    <select id="selectBusiPayHistoryById" parameterType="Long" resultMap="BusiPayHistoryResult">
+        <include refid="selectBusiPayHistoryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectLastAndBusiPayHistoryById" parameterType="Long" resultMap="BusiPayHistoryResult">
+        <include refid="selectBusiPayHistoryVo"/>
+        where id != #{id}
+        order by updated_date desc limit 1;
+    </select>
+    <select id="queryTotalAmount" resultType="java.math.BigDecimal">
+        select sum(money) from busi_pay_history
+        where pay_status =1
+    </select>
+    <select id="queryRechargeHistory" resultType="java.util.Map" parameterType="com.ruoyi.project.warehouse.input.QueryChartInput">
+        select sum(money) data,DATE_FORMAT(created_date, #{dateFrom}) dateStr
+        from busi_pay_history
+        where pay_status =1
+        <if test="date != null">
+          and DATE_FORMAT(created_date, #{dateFrom}) =#{date}
+        </if>
+        group by DATE_FORMAT(created_date, #{dateFrom})
+        order by DATE_FORMAT(created_date, #{dateFrom})
+    </select>
+
+    <insert id="insertBusiPayHistory" parameterType="BusiPayHistory" useGeneratedKeys="true" keyProperty="id">
+        insert into busi_pay_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="custId != null">cust_id,</if>
+            <if test="payType != null">pay_type,</if>
+            <if test="balance != null">balance,</if>
+            <if test="payMoney != null">pay_money,</if>
+            <if test="orderNo != null">order_no,</if>
+            <if test="payUrl != null">pay_url,</if>
+            <if test="payStatus != null">pay_status,</if>
+            <if test="approvalDate != null">approval_date,</if>
+            <if test="money != null">money,</if>
+            <if test="remakr != null">remakr,</if>
+            <if test="explainText != null">explain_text,</if>
+            <if test="createdDate != null">created_date,</if>
+            <if test="updatedDate != null">updated_date,</if>
+            <if test="createdBy != null">created_by,</if>
+            <if test="updatedBy != null">updated_by,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="custId != null">#{custId},</if>
+            <if test="payType != null">#{payType},</if>
+            <if test="balance != null">#{balance},</if>
+            <if test="payMoney != null">#{payMoney},</if>
+            <if test="orderNo != null">#{orderNo},</if>
+            <if test="payUrl != null">#{payUrl},</if>
+            <if test="payStatus != null">#{payStatus},</if>
+            <if test="approvalDate != null">#{approvalDate},</if>
+            <if test="money != null">#{money},</if>
+            <if test="remakr != null">#{remakr},</if>
+            <if test="explainText != null">#{explainText},</if>
+            <if test="createdDate != null">#{createdDate},</if>
+            <if test="updatedDate != null">#{updatedDate},</if>
+            <if test="createdBy != null">#{createdBy},</if>
+            <if test="updatedBy != null">#{updatedBy},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBusiPayHistory" parameterType="BusiPayHistory">
+        update busi_pay_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="custId != null">cust_id = #{custId},</if>
+            <if test="payType != null">pay_type = #{payType},</if>
+            <if test="balance != null">balance = #{balance},</if>
+            <if test="payMoney != null">pay_money = #{payMoney},</if>
+            <if test="orderNo != null">order_no = #{orderNo},</if>
+            <if test="payUrl != null">pay_url = #{payUrl},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="approvalDate != null">approval_date = #{approvalDate},</if>
+            <if test="money != null">money = #{money},</if>
+            <if test="remakr != null">remakr = #{remakr},</if>
+            <if test="explainText != null">explain_text = #{explainText},</if>
+            <if test="createdDate != null">created_date = #{createdDate},</if>
+            <if test="updatedDate != null">updated_date = #{updatedDate},</if>
+            <if test="createdBy != null">created_by = #{createdBy},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBusiPayHistoryById" parameterType="Long">
+        delete from busi_pay_history where id = #{id}
+    </delete>
+
+    <delete id="deleteBusiPayHistoryByIds" parameterType="String">
+        delete from busi_pay_history where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
