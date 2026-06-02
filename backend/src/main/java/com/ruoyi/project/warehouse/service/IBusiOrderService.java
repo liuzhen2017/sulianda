@@ -47,7 +47,7 @@ public interface IBusiOrderService {
      * @param operName 操作用户
      * @return 结果
      */
-    public String importUser(List<BusiOrder> busiOrderList,String operName);
+    public String importUser(List<BusiOrder> busiOrderList, String operName, String type);
 
     /**
      * 修改订单

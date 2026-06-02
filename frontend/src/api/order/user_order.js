@@ -35,6 +35,14 @@ export function updateOrder(data) {
   })
 }
 
+// 根据快递公司选择运输方式
+export function getShippingMethod(id) {
+  return request({
+    url: '/express/express/shipping-method/?id=' + id,
+    method: 'get'
+  })
+}
+
 // 查询订单业务轨迹
 export function listOrderEvents(id) {
   return request({

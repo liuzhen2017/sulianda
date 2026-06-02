@@ -115,12 +115,14 @@
           <el-input v-model="form.thirdPartyNo" placeholder="请输入手工快递单号(可选)" />
         </el-form-item>
         <el-form-item label="快递公司" prop="expressId">
-          <el-select v-model="form.expressId" placeholder="请选择快递公司" clearable>
+          <el-select v-model="form.expressId" placeholder="请选择快递公司" clearable @change="currStationChange">
             <el-option v-for="dict in dict.type.busi_express" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="运输方式代码" prop="shippingMethod">
-          <el-input v-model="form.shippingMethod" placeholder="请输入运输方式代码" />
+          <el-select v-model="form.shippingMethod" filterable clearable placeholder="请选择运输方式代码" style="width: 100%;">
+            <el-option v-for="dict in dict.type.shipping_method" :key="dict.code || dict.value" :label="dict.cnname || dict.label" :value="dict.code || dict.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="目的地国家中文名" prop="countryName">
           <el-input v-model="form.countryName" placeholder="请输入目的地国家中文名" />
@@ -223,7 +225,7 @@
         :limit="1"
         accept=".xlsx, .xls"
         :headers="upload.headers"
-        :action="upload.url + '?updateSupport=' + upload.updateSupport"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport + '&type=' + upload.type"
         :disabled="upload.isUploading"
         :on-progress="handleFileUploadProgress"
         :on-success="handleFileSuccess"
@@ -318,12 +320,12 @@
 </template>
 
 <script>
-import { listOrder, getOrder, delOrder, addOrder, updateOrder} from "@/api/order/user_order";
+import { listOrder, getOrder, delOrder, addOrder, updateOrder, getShippingMethod } from "@/api/order/user_order";
 import { getToken } from "@/utils/auth";
 
 export default {
   name: "Order",
-  dicts: ['order_type','order_status','busi_express','busi_country','unit'],
+  dicts: ['order_type','order_status','busi_express','busi_country','shipping_method','unit'],
   data() {
     return {
       loading: true,
@@ -358,6 +360,7 @@ export default {
         isUploading: false,
         updateSupport: 0,
         headers: { Authorization: "Bearer " + getToken() },
+        type: 2,
         url: process.env.VUE_APP_BASE_API + "/order/order/importData"
       },
     };
@@ -393,6 +396,7 @@ export default {
     },
     handleImport() {
       this.upload.title = "订单导入";
+      this.upload.type = 2;
       this.upload.open = true;
     },
     importTemplate() {
@@ -401,6 +405,22 @@ export default {
     cancelExpressMoney() {
       this.openExpressMoney = false;
       this.reset();
+    },
+    currStationChange() {
+      if (!this.form.expressId) {
+        this.dict.type.shipping_method = [];
+        this.form.shippingMethod = null;
+        return;
+      }
+      getShippingMethod(this.form.expressId).then(response => {
+        this.dict.type.shipping_method = response.data || [];
+        if (this.form.shippingMethod) {
+          const exists = this.dict.type.shipping_method.some(item => (item.code || item.value) === this.form.shippingMethod);
+          if (!exists) {
+            this.form.shippingMethod = null;
+          }
+        }
+      });
     },
     submitFileForm() {
       this.$refs.upload.submit();
@@ -465,6 +485,7 @@ export default {
         createdBy: null,
         updatedBy: null
       };
+      this.dict.type.shipping_method = [];
       this.resetForm("form");
     },
     handleQuery() {
@@ -501,6 +522,9 @@ export default {
         this.form = response.data;
         this.openStatus6 = true;
         this.title = "订单修改";
+        if (this.form.expressId) {
+          this.currStationChange();
+        }
       });
     },
     handleReject(row) {

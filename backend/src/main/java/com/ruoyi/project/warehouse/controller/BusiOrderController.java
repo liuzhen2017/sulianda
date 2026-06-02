@@ -9,9 +9,7 @@ import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.warehouse.domain.BusiOrder;
 import com.ruoyi.project.warehouse.domain.BusiOrderEvent;
-import com.ruoyi.project.warehouse.domain.BusiProduct;
 import com.ruoyi.project.warehouse.service.IBusiOrderService;
-import com.ruoyi.project.warehouse.service.IBusiProductService;
 import com.ruoyi.project.warehouse.service.impl.BusiExpressServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 订单Controller
@@ -59,9 +56,6 @@ public class BusiOrderController extends BaseController {
         util.exportExcel(response, list, "订单数据");
     }
 
-    @Autowired
-    private IBusiProductService productService;
-
     /**
      * 获取订单详细信息
      */
@@ -69,8 +63,6 @@ public class BusiOrderController extends BaseController {
     @GetMapping(value = {"/", "/{id}"})
     public AjaxResult getInfo(@PathVariable(value = "id", required = false) Long id) {
         AjaxResult ajax = AjaxResult.success();
-        List<BusiProduct> roles = productService.selectRoleAll();
-        ajax.put("busiProducts", roles.stream().collect(Collectors.toList()));
         ajax.put(AjaxResult.DATA_TAG, busiOrderService.selectBusiOrderById(id));
         return ajax;
     }
@@ -94,11 +86,11 @@ public class BusiOrderController extends BaseController {
     @Log(title = "订单管理", businessType = BusinessType.IMPORT)
     //@PreAuthorize("@ss.hasPermi('order:order:import')")
     @PostMapping("/importData")
-    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
+    public AjaxResult importData(MultipartFile file, boolean updateSupport, @RequestParam(value = "type", required = false) String type) throws Exception {
         ExcelUtil<BusiOrder> util = new ExcelUtil<>(BusiOrder.class);
         List<BusiOrder> busiOrderList = util.importExcel(file.getInputStream());
         String operName = getUsername();
-        String message = busiOrderService.importUser(busiOrderList, operName);
+        String message = busiOrderService.importUser(busiOrderList, operName, type);
         return success(message);
     }
 

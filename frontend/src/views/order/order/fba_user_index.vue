@@ -9,6 +9,11 @@
           <el-option v-for="dict in dict.type.order_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
+      <el-form-item label="快递公司" prop="expressId">
+        <el-select v-model="queryParams.expressId" placeholder="快递公司" clearable>
+          <el-option v-for="dict in dict.type.busi_express" :key="dict.value" :label="dict.label" :value="dict.value" />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -18,6 +23,9 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd" v-hasPermi="['order:order:add']">新增订单</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="info" plain icon="el-icon-upload2" size="mini" @click="handleImport">导入</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport" v-hasPermi="['order:order:export']">导出</el-button>
@@ -30,6 +38,12 @@
       <el-table-column label="订单号" align="center" prop="orderNo" />
       <el-table-column label="客户单号" align="center" prop="deliveryNo" />
       <el-table-column label="采购单号" align="center" prop="purchaseNo" />
+      <el-table-column label="快递公司" align="center" prop="expressId">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.busi_express" :value="scope.row.expressId" />
+        </template>
+      </el-table-column>
+      <el-table-column label="运输方式" align="center" prop="shippingMethod" />
       <el-table-column label="订单状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.order_status" :value="scope.row.status" :style="{ color: scope.row.status == '1' ? '#0CB618' : '#EA1B29' }" />
@@ -47,7 +61,7 @@
       </el-table-column>
       <el-table-column label="运费" align="center" prop="expressMoney">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-show" @click="ExpressMoneyInfo(scope.row)" v-hasPermi="['order:order:add']">运费明细</el-button>
+          <el-button size="mini" type="text" icon="el-icon-show" @click="expressMoneyInfo(scope.row)" v-hasPermi="['order:order:add']">运费明细</el-button>
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
@@ -60,7 +74,7 @@
 
     <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
 
-    <el-dialog :title="title" :visible.sync="open" width="800x" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" size="medium" label-width="200px">
         <el-form-item label="客户单号" prop="deliveryNo">
           <el-input v-model="form.deliveryNo" placeholder="请输入客户单号" />
@@ -70,6 +84,16 @@
         </el-form-item>
         <el-form-item label="地址库" prop="addressLibrary">
           <el-input v-model="form.addressLibrary" placeholder="请输入地址库" />
+        </el-form-item>
+        <el-form-item label="快递公司" prop="expressId">
+          <el-select v-model="form.expressId" placeholder="请选择快递公司" clearable style="width: 100%;" @change="currStationChange">
+            <el-option v-for="dict in dict.type.busi_express" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="运输方式代码" prop="shippingMethod">
+          <el-select v-model="form.shippingMethod" filterable clearable placeholder="请选择运输方式代码" style="width: 100%;">
+            <el-option v-for="dict in dict.type.shipping_method" :key="dict.code || dict.value" :label="dict.cnname || dict.label" :value="dict.code || dict.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="收件人" prop="consigneeName">
           <el-input v-model="form.consigneeName" placeholder="请输入收件人" />
@@ -97,6 +121,11 @@
         </el-form-item>
         <el-form-item label="国家" prop="countryName">
           <el-input v-model="form.countryName" placeholder="请输入国家" />
+        </el-form-item>
+        <el-form-item label="收件人国家编码" prop="consigneeCountryCode">
+          <el-select v-model="form.consigneeCountryCode" filterable clearable placeholder="请选择收件人国家编码" style="width: 100%;">
+            <el-option v-for="dict in dict.type.busi_country" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="电话" prop="consigneeTelephone">
           <el-input v-model="form.consigneeTelephone" placeholder="请输入电话" />
@@ -132,17 +161,17 @@
           <el-input v-model="form.eori" placeholder="请输入EORI" />
         </el-form-item>
         <el-form-item label="申报币种">
-          <el-select v-model="form.invoiceCurrencycode" placeholder="请选择申报币种" style="width: 100%;height: 10%;">
+          <el-select v-model="form.invoiceCurrencycode" placeholder="请选择申报币种" style="width: 100%;">
             <el-option v-for="dict in dict.type.invoice_currencycode" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="物品属性">
-          <el-select v-model="form.attribute" placeholder="请选择物品属性" style="width: 100%;height: 10%;">
+          <el-select v-model="form.attribute" placeholder="请选择物品属性" style="width: 100%;">
             <el-option v-for="dict in dict.type.attribute" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="购买保险">
-          <el-select v-model="form.payInsurance" placeholder="购买保险" style="width: 100%;height: 10%;">
+          <el-select v-model="form.payInsurance" placeholder="购买保险" style="width: 100%;">
             <el-option v-for="dict in dict.type.pay_insurance" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
@@ -156,6 +185,31 @@
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
+      <el-upload
+        ref="upload"
+        :limit="1"
+        accept=".xlsx, .xls"
+        :headers="upload.headers"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport + '&type=' + upload.type"
+        :disabled="upload.isUploading"
+        :on-progress="handleFileUploadProgress"
+        :on-success="handleFileSuccess"
+        :auto-upload="false"
+        drag>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip text-center" slot="tip">
+          <span>仅允许导入xls、xlsx格式文件。</span>
+          <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;" @click="importTemplate">下载模板</el-link>
+        </div>
+      </el-upload>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFileForm">确 定</el-button>
+        <el-button @click="upload.open = false">取 消</el-button>
       </div>
     </el-dialog>
 
@@ -179,6 +233,8 @@
         <el-form-item label="客户单号" prop="deliveryNo"><el-input v-model="form.deliveryNo" readonly="true"/></el-form-item>
         <el-form-item label="服务类型" prop="serverType"><el-input v-model="form.serverType" readonly="true"/></el-form-item>
         <el-form-item label="地址库" prop="addressLibrary"><el-input v-model="form.addressLibrary" readonly="true"/></el-form-item>
+        <el-form-item label="快递公司"><dict-tag :options="dict.type.busi_express" :value="form.expressId" /></el-form-item>
+        <el-form-item label="运输方式代码" prop="shippingMethod"><el-input v-model="form.shippingMethod" readonly="true"/></el-form-item>
         <el-form-item label="收件人" prop="consigneeName"><el-input v-model="form.consigneeName" readonly="true"/></el-form-item>
         <el-form-item label="公司" prop="consigneeCompany"><el-input v-model="form.consigneeCompany" readonly="true"/></el-form-item>
         <el-form-item label="地址一" prop="addressOne"><el-input v-model="form.addressOne" readonly="true"/></el-form-item>
@@ -204,11 +260,12 @@
 </template>
 
 <script>
-import { listOrder, getOrder, delOrder, addOrder, updateOrder} from "@/api/order/user_order";
+import { listOrder, getOrder, delOrder, addOrder, updateOrder, getShippingMethod } from "@/api/order/user_order";
+import { getToken } from "@/utils/auth";
 
 export default {
   name: "Order",
-  dicts: ['order_type','order_status','invoice_currencycode','attribute','pay_insurance'],
+  dicts: ['order_type','order_status','invoice_currencycode','attribute','pay_insurance','busi_express','busi_country','shipping_method'],
   data() {
     return {
       loading: true,
@@ -227,6 +284,8 @@ export default {
         pageSize: 10,
         type: null,
         status: null,
+        orderNo: null,
+        expressId: null,
       },
       form: {
         charge: 'N',
@@ -236,6 +295,15 @@ export default {
         danger: 'N',
       },
       rules: {},
+      upload: {
+        open: false,
+        title: "",
+        isUploading: false,
+        updateSupport: 0,
+        type: 1,
+        headers: { Authorization: "Bearer " + getToken() },
+        url: process.env.VUE_APP_BASE_API + "/order/order/importData"
+      },
     };
   },
   created() {
@@ -263,6 +331,43 @@ export default {
       this.openExpressMoney = false;
       this.reset();
     },
+    handleImport() {
+      this.upload.title = "订单导入";
+      this.upload.type = 1;
+      this.upload.open = true;
+    },
+    importTemplate() {
+      this.download('order/order/importTemplate', {}, `order_template_${new Date().getTime()}.xlsx`)
+    },
+    submitFileForm() {
+      this.$refs.upload.submit();
+    },
+    handleFileUploadProgress() {
+      this.upload.isUploading = true;
+    },
+    handleFileSuccess(response) {
+      this.upload.open = false;
+      this.upload.isUploading = false;
+      this.$refs.upload.clearFiles();
+      this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true });
+      this.getList();
+    },
+    currStationChange() {
+      if (!this.form.expressId) {
+        this.dict.type.shipping_method = [];
+        this.form.shippingMethod = null;
+        return;
+      }
+      getShippingMethod(this.form.expressId).then(response => {
+        this.dict.type.shipping_method = response.data || [];
+        if (this.form.shippingMethod) {
+          const exists = this.dict.type.shipping_method.some(item => (item.code || item.value) === this.form.shippingMethod);
+          if (!exists) {
+            this.form.shippingMethod = null;
+          }
+        }
+      });
+    },
     reset() {
       this.form = {
         id: null,
@@ -278,6 +383,7 @@ export default {
         status: null,
         faceUrl: null,
         expressId: null,
+        shippingMethod: null,
         serverType: null,
         addressLibrary: null,
         addressOne: null,
@@ -288,6 +394,7 @@ export default {
         consigneeCity: null,
         consigneeProvince: null,
         consigneeMail: null,
+        consigneeCountryCode: null,
         countryName: null,
         consigneeTelephone: null,
         email: null,
@@ -307,13 +414,14 @@ export default {
         createdBy: null,
         updatedBy: null,
       };
+      this.dict.type.shipping_method = [];
       this.resetForm("form");
     },
     handleQuery() {
       this.queryParams.pageNum = 1;
       this.getList();
     },
-    ExpressMoneyInfo(row) {
+    expressMoneyInfo(row) {
       this.reset();
       const id = row.id || this.ids
       getOrder(id).then(response => {
@@ -352,6 +460,9 @@ export default {
         this.form = response.data;
         this.open = true;
         this.title = "修改订单";
+        if (this.form.expressId) {
+          this.currStationChange();
+        }
       });
     },
     submitForm() {

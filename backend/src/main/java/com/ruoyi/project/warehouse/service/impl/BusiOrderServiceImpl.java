@@ -124,7 +124,7 @@ public class BusiOrderServiceImpl implements IBusiOrderService {
     }
 
     @Override
-    public String importUser(List<BusiOrder> busiOrderList, String operName) {
+    public String importUser(List<BusiOrder> busiOrderList, String operName, String type) {
         if (StringUtils.isNull(busiOrderList) || busiOrderList.size() == 0) {
             throw new ServiceException("导入订单数据不能为空！");
         }
@@ -162,7 +162,10 @@ public class BusiOrderServiceImpl implements IBusiOrderService {
                     busiOrder.setUnitCode(sysDiceDataList.get(0).getDictValue());
                 }
                 busiOrder.setCustId(getUserId());
-                busiOrder.setType("2");
+                busiOrder.setType(StringUtils.defaultIfEmpty(type, busiOrder.getType()));
+                if (StringUtils.isEmpty(busiOrder.getType())) {
+                    busiOrder.setType("2");
+                }
                 busiOrder.setCreatedBy(operName);
                 this.insertBusiOrder(busiOrder);
                 successNum++;

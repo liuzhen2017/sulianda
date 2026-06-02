@@ -34,6 +34,7 @@ import com.ruoyi.project.system.service.ISysMenuService;
 public class SysMenuServiceImpl implements ISysMenuService
 {
     public static final String PREMISSION_STRING = "perms[\"{0}\"]";
+    private static final List<String> HIDDEN_MENU_COMPONENT_PREFIXES = Arrays.asList("product/product", "express/customer");
 
     @Autowired
     private SysMenuMapper menuMapper;
@@ -139,7 +140,7 @@ public class SysMenuServiceImpl implements ISysMenuService
         {
             menus = menuMapper.selectMenuTreeByUserId(userId);
         }
-        return getChildPerms(menus, 0);
+        return getChildPerms(filterHiddenBusinessMenus(menus), 0);
     }
 
     /**
@@ -451,6 +452,16 @@ public class SysMenuServiceImpl implements ISysMenuService
     public boolean isInnerLink(SysMenu menu)
     {
         return menu.getIsFrame().equals(UserConstants.NO_FRAME) && StringUtils.ishttp(menu.getPath());
+    }
+
+    private List<SysMenu> filterHiddenBusinessMenus(List<SysMenu> menus)
+    {
+        return menus.stream().filter(menu -> !shouldHideBusinessMenu(menu)).collect(Collectors.toList());
+    }
+
+    private boolean shouldHideBusinessMenu(SysMenu menu)
+    {
+        return HIDDEN_MENU_COMPONENT_PREFIXES.stream().anyMatch(prefix -> StringUtils.startsWith(menu.getComponent(), prefix));
     }
 
     /**
