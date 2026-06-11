@@ -225,6 +225,15 @@ public class BusiExpressServiceImpl extends ExpressServiceBaseService implements
         if (normalizedName.contains("信思") || normalizedName.contains("xinsi")) {
             return normalizedBean.contains("xinsi");
         }
+        if (normalizedName.contains("佳邮") || normalizedName.contains("jiayou")) {
+            return normalizedBean.contains("jiayou");
+        }
+        if (normalizedName.contains("云途") || normalizedName.contains("yuntu")) {
+            return normalizedBean.contains("yuntu");
+        }
+        if (normalizedName.contains("华羽通") || normalizedName.contains("huayutong")) {
+            return normalizedBean.contains("huayutong");
+        }
         return false;
     }
 
