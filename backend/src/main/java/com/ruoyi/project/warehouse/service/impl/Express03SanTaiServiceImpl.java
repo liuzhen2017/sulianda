@@ -108,11 +108,15 @@ public class Express03SanTaiServiceImpl extends ExpressServiceBaseService {
 
 
         Map<String,String> header =new HashMap<>();
-        header.put("userId", "X7468");
-        header.put("appKey","MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDTkuCPxRRPknfMfz88XblpBtaox/G+7V30UtJYXzk7t99RDfOoogJbZH7Gf+e+8E0" +
-                "ZEeuuTyBCnEuHykFRk7ZF7sBvrWHCmXtOijXzZsR7fSigxcN2G/S5uBrmDsjT6Jh+Mer//pyjbFdoB5mm8UnoXSM0MIpJUiNUSbz/FyiaXQIDAQAB");
-        header.put("token","MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHmTwlz7k0ys/vjCMh2619qM6LP9LawxiI1oTNpQkZGrwNDvm5iqCxiF" +
-                "QUkL7hznOImTMBK0P7YDhZlX6DL5BDEHNAvmIWPGdGkv2Gc+lj5jUyaN/by1h7kiVFB85zEGUHxtMCKBI+yAP3n00SUIUCZLXxreZtYPyjTqRiGhXprwIDAQAB");
+        // 从数据库读取API配置，替换硬编码
+        String userId = busiExpress.getAuthorizationNo();
+        String appKey = busiExpress.getAuthorizationCode();
+        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(appKey)) {
+            throw new RuntimeException("三态API配置不完整，请在快递管理中配置授权账号和授权码");
+        }
+        header.put("userId", userId);
+        header.put("appKey", appKey);
+        header.put("token", appKey);
 
         obj.put("HeaderRequest",header);
         obj.put("divisionId","1");

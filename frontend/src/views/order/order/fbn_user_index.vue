@@ -111,7 +111,7 @@
         <el-form-item label="采购单号" prop="purchaseNo">
           <el-input v-model="form.purchaseNo" placeholder="请输入采购单号" />
         </el-form-item>
-        <el-form-item label="手工单号" prop="thirdPartyNo">
+        <el-form-item label="手工单号" prop="thirdPartyNo" v-show="isAdminUser">
           <el-input v-model="form.thirdPartyNo" placeholder="请输入手工快递单号(可选)" />
         </el-form-item>
         <el-form-item label="快递公司" prop="expressId">
@@ -119,7 +119,7 @@
             <el-option v-for="dict in dict.type.busi_express" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="运输方式代码" prop="shippingMethod">
+        <el-form-item label="运输方式代码" prop="shippingMethod" v-show="isAdminUser">
           <el-select v-model="form.shippingMethod" filterable clearable placeholder="请选择运输方式代码" style="width: 100%;">
             <el-option v-for="dict in dict.type.shipping_method" :key="dict.code || dict.value" :label="dict.cnname || dict.label" :value="dict.code || dict.value" />
           </el-select>
@@ -579,6 +579,13 @@ export default {
       this.download('order/order/export', {
         ...this.queryParams
       }, `order_${new Date().getTime()}.xlsx`)
+    }
+  },
+  computed: {
+    // 计算属性：是否为管理员
+    isAdminUser() {
+      const roles = this.$store.getters && this.$store.getters.roles;
+      return roles && roles.indexOf('admin') !== -1;
     }
   }
 };

@@ -210,7 +210,7 @@ public class BusiExpressServiceImpl extends ExpressServiceBaseService implements
         if (normalizedName.contains("递四方") || normalizedName.contains("4px")) {
             return normalizedBean.contains("disifang");
         }
-        if (normalizedName.contains("捷航")) {
+        if (normalizedName.contains("捷航") || normalizedName.contains("杰航")) {
             return normalizedBean.contains("jiehang");
         }
         if (normalizedName.contains("三态") || normalizedName.contains("sfc")) {
