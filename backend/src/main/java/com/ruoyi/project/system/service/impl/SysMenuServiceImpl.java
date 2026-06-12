@@ -172,7 +172,7 @@ public class SysMenuServiceImpl implements ISysMenuService
             router.setHidden("1".equals(menu.getVisible()));
             router.setName(getRouteName(menu));
             router.setPath(getRouterPath(menu));
-            router.setComponent(getComponent(menu));
+            router.setComponent(resolveComponent(menu));
             router.setQuery(menu.getQuery());
             router.setMeta(new MetaVo(menu.getMenuName(), menu.getIcon(), StringUtils.equals("1", menu.getIsCache()), menu.getPath()));
             List<SysMenu> cMenus = menu.getChildren();
@@ -416,6 +416,16 @@ public class SysMenuServiceImpl implements ISysMenuService
         else if (StringUtils.isEmpty(menu.getComponent()) && isParentView(menu))
         {
             component = UserConstants.PARENT_VIEW;
+        }
+        return component;
+    }
+
+    private String resolveComponent(SysMenu menu)
+    {
+        String component = getComponent(menu);
+        if (!SecurityUtils.isAdmin(SecurityUtils.getUserId()) && "order/order/fbn_admin_index".equals(component))
+        {
+            return "order/order/fbn_user_index";
         }
         return component;
     }
